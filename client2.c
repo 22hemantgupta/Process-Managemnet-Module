@@ -89,17 +89,20 @@ int main(int argc, char *argv[])
        //    exit(0);            /*   exit if it is                */
        // execute(argv1); 
         n = write(sockfd,buffer,strlen(buffer));
+        if(strcmp(buffer,"exit")==0)
+        {
+            exit(0);
+        }
         if (n < 0) 
              error("ERROR writing to socket");
-        //bzero(buffer,256);
-        /*n = read(sockfd,buffer,255);
+        /*bzero(buffer,256);
+        n = read(sockfd,buffer,255);
         if (n < 0) 
              error("ERROR reading from socket");
         printf("Server : %s\n",buffer);
         int i = strncmp("Bye" , buffer , 3);
         if(i == 0)
-               break;
-        */
+               break;*/
     }
     close(sockfd);
     return 0;
