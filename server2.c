@@ -8,7 +8,21 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include<fcntl.h> 
+#include<signal.h>
 #include<pthread.h>
+int sockfd, newsockfd, portno;
+pid_t arr[1000000];
+/*void *connection_handler(void *arv)
+{
+    char **argv2=(char**)arv;
+    while(1)
+        {
+        int newfd = open("mysercli.txt",O_WRONLY | O_APPEND | O_CREAT , 0644); 
+        // here the newfd is the file descriptor of stdout (i.e. 1) 
+        dup2(newfd, 1) ;
+        execvp(argv2[0],argv2);
+        }
+}*/
 void parse(char *buffer , char **argv1)
 {
     while (*buffer!='\0')
@@ -28,13 +42,11 @@ void Die(char *mess)
     perror(mess);
     exit(1);
 }
-void execute(char **argv1)
+int j=0;
+pid_t execute(char **argv1)
 {
     pid_t  pid;
     int    status;
-    int pipefd[2],lenght;
-    if(pipe(pipefd))
-        Die("Failed to create pipe");
     if ((pid=fork()) < 0) 
     {     // fork a child process           
         printf("*** ERROR: forking child process failed\n");
@@ -42,7 +54,12 @@ void execute(char **argv1)
     }
     else if(pid == 0)
     {
-        
+        j++;
+        if(send(newsockfd, &j, sizeof(j), 0)<0)
+          {
+              Die("sorry !");
+          }
+        arr[j]=getpid();
         /*if(execvp(*argv1,argv1)<0)
         {
             printf("***ERROR***\n");
@@ -55,17 +72,31 @@ void execute(char **argv1)
         execvp(argv1[0],argv1); // finally execute the command*/
         while(1)
         {
-        int newfd = open("mysercli.txt",O_WRONLY | O_APPEND | O_CREAT , 0644); 
+            pid_t pid1;
+            int status1 ;
+            if ((pid1=fork()) < 0) 
+        {     // fork a child process           
+        printf("*** ERROR: forking child process failed\n");
+        exit(1);
+        }
+        else if(pid1 == 0)
+        {
+        int newfd = open("serverclient1.txt",O_WRONLY | O_APPEND | O_CREAT , 0644); 
         // here the newfd is the file descriptor of stdout (i.e. 1) 
         dup2(newfd, 1) ;
         execvp(argv1[0],argv1);
         }
+        else
+        {
+            wait(&status1) !=pid1;
+        }
+        }
     }
-    else
+    /*else
     {
-        while(wait(&status) !=pid)
-        ;
-    }  
+        while(wait(&status) !=pid);
+    }*/
+    return getpid();
 }
 void error(const char *msg)
 {
@@ -75,10 +106,8 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
-     int sockfd, newsockfd, portno;
      socklen_t clilen;
      char buffer[256];
-     char *argv1[64];
      struct sockaddr_in serv_addr, cli_addr;
      int n;
      if (argc < 2) {
@@ -105,14 +134,55 @@ int main(int argc, char *argv[])
           error("ERROR on accept");
      while(1)
      {
+         char *argv1[64];
            bzero(buffer,255);
            n = read(newsockfd,buffer,255);
            if (n < 0) error("ERROR reading from socket");
            printf("Client: %s\n",buffer);
           parse(buffer, argv1);       //   parse the line               
           if (strcmp(argv1[0], "exit") == 0)  // is it an "exit"?     
-               exit(0);            //   exit if it is                
-          execute(argv1); 
+               exit(0); 
+          
+          //for(int i=0;i<j;i++)
+           // {
+             //   printf("%d " , arr[i]);
+            //}
+          if(strcmp(argv1[0],"kill")==0)
+            {
+            //itoa(arr[atoi(argv1[1])],argv1[1],10);
+            //sprintf(argv1[2], "%d",arr[atoi(argv1[2])]);
+            //execvp(argv1[0],argv1);
+            kill(arr[atoi(argv1[1])], SIGKILL);
+            continue;
+            }
+                   //   exit if it is  
+          //int thread =pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) j) 
+          /*if(pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) j)<0)
+          {
+               perror("could not create thread");
+               return 1;
+          }   
+          //arr[j]=thread;
+          int pid=j;*/
+          /*pthread_t tid;
+          int checking;
+        checking = pthread_create(&tid, NULL, connection_handler ,(void *) argv1);
+        if (checking !=0)
+        perror("create Thread");
+        //pthread_exit(NULL);
+        arr[j]=tid;
+        int pid=j;
+        bzero(buffer,255);
+          if(send(newsockfd, &pid, sizeof(pid), 0)<0)
+          {
+              error("sorry !");
+          } */  
+          j++;      
+        if(send(newsockfd, &j, sizeof(j), 0)<0)
+          {
+              Die("sorry !");
+          }
+          arr[j]=execute(argv1); 
           //bzero(buffer,255);
           /*fgets(buffer,255,stdin);
           n = write(newsockfd,buffer,strlen(buffer));
@@ -121,6 +191,7 @@ int main(int argc, char *argv[])
            if(i == 0)
                break;*/
      }
+     //pthread_exit(NULL);
      close(newsockfd);
      close(sockfd);
      return 0; 
