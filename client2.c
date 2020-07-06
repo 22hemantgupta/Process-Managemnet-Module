@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#include<pthread.h>
 void parse(char *buffer , char **argv1)
 {
     while (*buffer!='\0')
@@ -20,13 +21,13 @@ void parse(char *buffer , char **argv1)
     }
     *argv1 = '\0';
 }
-void  execute(char **argv1)
+/*void  execute(char **argv1)
 {
     pid_t  pid;
     int    status;
 
     if ((pid = fork()) < 0) 
-    {     /* fork a child process           */
+    {     // fork a child process           
         printf("*** ERROR: forking child process failed\n");
         exit(1);
     }
@@ -43,7 +44,7 @@ void  execute(char **argv1)
         while(wait(&status) !=pid)
         ;
     }  
-}
+}*/
 void error(const char *msg)
 {
     perror(msg);
@@ -81,8 +82,8 @@ int main(int argc, char *argv[])
         error("ERROR connecting");
     while(1)
     {
-        printf("Client: ");
         bzero(buffer,255);
+        printf("Client: ");
         gets(buffer);
        // parse(buffer, argv1);       /*   parse the line               */
        // if (strcmp(argv1[0], "exit") == 0)  /* is it an "exit"?     */
@@ -95,8 +96,12 @@ int main(int argc, char *argv[])
         }
         if (n < 0) 
              error("ERROR writing to socket");
-        /*bzero(buffer,256);
-        n = read(sockfd,buffer,255);
+
+        int j;
+        recv(sockfd, &j, sizeof(j),0);
+        printf("process id send by server is %d\n" , j);
+        //bzero(buffer,255);
+        /*n = read(sockfd,buffer,255);
         if (n < 0) 
              error("ERROR reading from socket");
         printf("Server : %s\n",buffer);
@@ -107,3 +112,4 @@ int main(int argc, char *argv[])
     close(sockfd);
     return 0;
 }
+
