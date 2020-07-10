@@ -11,7 +11,7 @@
 #include<signal.h>
 #include<pthread.h>
 int sockfd, newsockfd, portno;
-pid_t arr[1000000];
+int arr[1000000];
 /*void *connection_handler(void *arv)
 {
     char **argv2=(char**)arv;
@@ -43,7 +43,7 @@ void Die(char *mess)
     exit(1);
 }
 int j=0;
-pid_t execute(char **argv1)
+int execute(char **argv1)
 {
     pid_t  pid;
     int    status;
@@ -54,7 +54,7 @@ pid_t execute(char **argv1)
     }
     else if(pid == 0)
     {
-        j++;
+        /*j++;
         if(send(newsockfd, &j, sizeof(j), 0)<0)
           {
               Die("sorry !");
