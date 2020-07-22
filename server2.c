@@ -1,5 +1,4 @@
-
-    /* A simple server in the internet domain using TCP
+/* A simple server in the internet domain using TCP
    The port number is passed as an argument */
 #include <stdio.h>
 #include <stdlib.h>
@@ -156,7 +155,7 @@ int main(int argc, char *argv[])
             //itoa(arr[atoi(argv1[1])],argv1[1],10);
             //sprintf(argv1[2], "%d",arr[atoi(argv1[2])]);
             //execvp(argv1[0],argv1);
-            pid_t pid1;
+            /*pid_t pid1;
             int status1;
             if ((pid1 = fork()) < 0)
             { // fork a child process
@@ -164,19 +163,19 @@ int main(int argc, char *argv[])
                 exit(1);
             }
             else if (pid1 == 0)
-            {
-                int x = arr[atoi(argv1[1])];
-                printf("%d", x);
-                //argv1[1] = "x";
-                argv1[1] = atoa(x);
-                kill(x, SIGKILL);
-                fflush();
-                continue;
-            }
+            {*/
+            int x = arr[atoi(argv1[1])];
+            //printf("%d", x);
+            //argv1[1] = "x";
+            //argv1[1] = atoa(x);
+            kill(x, SIGKILL);
+            // fflush();
+            continue;
+            /*}
             else
             {
                 wait(&status1) != pid1;
-            }
+            }*/
         }
         //   exit if it is
         //int thread =pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) j)
