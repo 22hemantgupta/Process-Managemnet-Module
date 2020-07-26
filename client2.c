@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
     serv_addr.sin_port = htons(portno);
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
         error("ERROR connecting");
+    int x = 0;
     while (1)
     {
         char *argv1[64];
@@ -103,12 +104,22 @@ int main(int argc, char *argv[])
 
         if (strcmp(argv1[0], "kill") == 0)
         {
-            printf("process killed\n");
+            //char *s;
+            //recv(sockfd, &s, sizeof(s), 0);
+            if (atoi(argv1[1]) <= x)
+                printf("Process KILLED Successfully\n");
+            else
+            {
+                printf("Sorry!\n");
+                printf("Invalid Process Id\n");
+            }
+            //printf("process killed\n");
             continue;
         }
         int j;
         recv(sockfd, &j, sizeof(j), 0);
         printf("process id send by server is %d\n", j);
+        x = j;
         //bzero(buffer,255);
         /*n = read(sockfd,buffer,255);
         if (n < 0) 

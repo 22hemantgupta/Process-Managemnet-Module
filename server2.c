@@ -168,8 +168,21 @@ int main(int argc, char *argv[])
             //printf("%d", x);
             //argv1[1] = "x";
             //argv1[1] = atoa(x);
-            kill(x, SIGKILL);
+            char *s;
+            if (atoi(argv1[1]) <= j)
+            {
+                kill(x, SIGKILL);
+                //s = "Process Killed Successfully";
+            }
+            /*else
+            {
+                s = "Sorry! Enter valid Process Id";
+            }
             // fflush();
+            if (send(newsockfd, &s, sizeof(s), 0) < 0)
+            {
+                Die("sorry !");
+            }*/
             continue;
             /*}
             else
@@ -205,7 +218,7 @@ int main(int argc, char *argv[])
             Die("sorry !");
         }
         arr[j] = execute(argv1);
-        printf("%d/n", arr[j]);
+       printf("process id : %d\n", arr[j]);
         //bzero(buffer,255);
         /*fgets(buffer,255,stdin);
           n = write(newsockfd,buffer,strlen(buffer));
