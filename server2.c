@@ -1,5 +1,3 @@
-/* A simple server in the internet domain using TCP
-   The port number is passed as an argument */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +10,6 @@
 #include <pthread.h>
 #define atoa(x) #x
 int sockfd, newsockfd, portno;
-int arr[1000000];
 /*void *connection_handler(void *arv)
 {
     char **argv2=(char**)arv;
@@ -43,11 +40,11 @@ void Die(char *mess)
     perror(mess);
     exit(1);
 }
-int j = 0;
 int execute(char **argv1)
 {
     pid_t pid;
     int status;
+    int proid;
     if ((pid = fork()) < 0)
     { // fork a child process
         printf("*** ERROR: forking child process failed\n");
@@ -82,10 +79,17 @@ int execute(char **argv1)
             }
             else if (pid1 == 0)
             {
-                int newfd = open("serverclient1.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
+                int newfd = open("serverclient1.txt", O_WRONLY | O_APPEND | O_CREAT, 777);
                 // here the newfd is the file descriptor of stdout (i.e. 1)
                 dup2(newfd, 1);
-                execvp(argv1[0], argv1);
+                //dup2(1, 2);
+                //dup2(newfd, 2);
+                if (execvp(*argv1, argv1) < 0)
+                {
+                    printf("***ERROR***\n");
+                    exit(1);
+                }
+                //execvp(argv1[0], argv1);
             }
             else
             {
@@ -111,6 +115,7 @@ int main(int argc, char *argv[])
     char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
     int n;
+    pid_t arr[1000000];
     if (argc < 2)
     {
         fprintf(stderr, "ERROR, no port provided\n");
@@ -134,6 +139,7 @@ int main(int argc, char *argv[])
                        &clilen);
     if (newsockfd < 0)
         error("ERROR on accept");
+    int j = 0;
     while (1)
     {
         char *argv1[64];
@@ -141,7 +147,7 @@ int main(int argc, char *argv[])
         n = read(newsockfd, buffer, 255);
         if (n < 0)
             error("ERROR reading from socket");
-        printf("Client: %s\n", buffer);
+        printf("Client: %s\t", buffer);
         parse(buffer, argv1);              //   parse the line
         if (strcmp(argv1[0], "exit") == 0) // is it an "exit"?
             exit(0);
@@ -152,6 +158,7 @@ int main(int argc, char *argv[])
         //}
         if (strcmp(argv1[0], "kill") == 0)
         {
+            printf("\n");
             //itoa(arr[atoi(argv1[1])],argv1[1],10);
             //sprintf(argv1[2], "%d",arr[atoi(argv1[2])]);
             //execvp(argv1[0],argv1);
@@ -168,21 +175,8 @@ int main(int argc, char *argv[])
             //printf("%d", x);
             //argv1[1] = "x";
             //argv1[1] = atoa(x);
-            char *s;
-            if (atoi(argv1[1]) <= j)
-            {
-                kill(x, SIGKILL);
-                //s = "Process Killed Successfully";
-            }
-            /*else
-            {
-                s = "Sorry! Enter valid Process Id";
-            }
+            kill(x, SIGKILL);
             // fflush();
-            if (send(newsockfd, &s, sizeof(s), 0) < 0)
-            {
-                Die("sorry !");
-            }*/
             continue;
             /*}
             else
@@ -218,7 +212,7 @@ int main(int argc, char *argv[])
             Die("sorry !");
         }
         arr[j] = execute(argv1);
-       printf("process id : %d\n", arr[j]);
+        printf("%d\n", arr[j]);
         //bzero(buffer,255);
         /*fgets(buffer,255,stdin);
           n = write(newsockfd,buffer,strlen(buffer));

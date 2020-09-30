@@ -16,7 +16,6 @@
 using namespace std;
 //#define atoa(x) #x
 int sockfd, newsockfd, portno;
-int arr[1000000];
 /*void *connection_handler(void *arv)
 {
     char **argv2=(char**)arv;
@@ -40,16 +39,16 @@ void parse(char *buffer, char **argv1)
         while (*buffer != '\0' && *buffer != ' ' && *buffer != '\t' && *buffer != '\n')
             buffer++;
     }
-    *argv1 = "\0";
+    *argv1 = NULL;
 }
 void Die(char *mess)
 {
     perror(mess);
     exit(1);
 }
-int j = 0;
 int execute(char **argv1)
 {
+    //cout << " start" << getpid();
     pid_t pid;
     int status;
     if ((pid = fork()) < 0)
@@ -59,6 +58,8 @@ int execute(char **argv1)
     }
     else if (pid == 0)
     {
+        cout << " hell";
+        cout << getppid() << "hi ";
         /*j++;
         if(send(newsockfd, &j, sizeof(j), 0)<0)
           {
@@ -89,15 +90,23 @@ int execute(char **argv1)
                 int newfd = open("serverclient1.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
                 // here the newfd is the file descriptor of stdout (i.e. 1)
                 dup2(newfd, 1);
-                execvp(argv1[0], argv1);
+                if (execvp(*argv1, argv1) < 0)
+                {
+                    printf("***ERROR***\n");
+                    exit(1);
+                }
+                //close(newfd);
             }
             else
             {
                 wait(&status1) != pid1;
             }
+            //cout << getpid() << "hi ";
+            //return getpid();
         }
         return getpid();
     }
+    //return 0;
     /*else
     {
         while(wait(&status) !=pid);
@@ -115,6 +124,7 @@ int main(int argc, char *argv[])
     char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
     int n;
+    pid_t arr[1000000];
     if (argc < 2)
     {
         fprintf(stderr, "ERROR, no port provided\n");
@@ -138,6 +148,7 @@ int main(int argc, char *argv[])
                        &clilen);
     if (newsockfd < 0)
         error("ERROR on accept");
+    int j = 0;
     while (1)
     {
         char *argv1[64];
@@ -222,7 +233,7 @@ int main(int argc, char *argv[])
         {
             Die("sorry !");
         }
-        store[j] = buffer;
+        //store[j] = buffer;
         arr[j] = execute(argv1);
         printf("process id : %d\n", arr[j]);
         //bzero(buffer,255);
