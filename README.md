@@ -1,5 +1,5 @@
 # server-client-lincom
-open the terminal \n
+open the terminal <br />
 then compile server2.c file using g++ file name [option]
 then run the executable file with ./a.out port number
 then again open another terminal
